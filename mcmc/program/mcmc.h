@@ -5,5 +5,6 @@ private:
 	MainWindow mainWindow;
 public:
 	int main() override;
+	void render();
 };
 
