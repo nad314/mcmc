@@ -21,12 +21,24 @@
     <ClCompile Include="program\mcmc.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="mainWindow\mainWindow.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="renderWindow\renderWindow.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="program\main.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="program\mcmc.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="mainWindow\mainWindow.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="renderWindow\renderWindow.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
