@@ -1,9 +1,11 @@
 CC = g++
 BIN = bin
 BUILD = build
+OBJ = $(BIN)/main.o
+
 
 all:
-	$(CC) mcmc/program/main.cpp -o $(BIN)/main.o
-	$(CC) $(BIN)/main.o -o $(BUILD)/mcmc.run
+	$(CC) -c mcmc/program/main.cpp -o $(BIN)/main.o
+	$(CC) $(OBJ) -o $(BUILD)/mcmc.run
 	./$(BUILD)/mcmc.run
 	
