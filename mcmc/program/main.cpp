@@ -1,4 +1,5 @@
 #include <program/main.h>
+namespace plt = matplotlibcpp;
 
 int main(void) {
  	// plot(y) - the x-coordinates are implicitly set to [0,1,...,n)
