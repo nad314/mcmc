@@ -1,15 +1,85 @@
 #include <main>
 
+float hi(const std::vector<vec2>& v1, const std::vector<vec2>& v2, mat2 mat) {
+	float x = 0.0f;
+	for(int i=0;i<v1.size();++i) {
+		vec2 point = v1.at(i);
+		float dist = (mat*v2.at(0)-point).magnitude();
+		for (int j=1;j<v2.size();++j)
+			dist = std::min(dist, (mat*v2.at(j)-point).magnitude());
+		x += dist;
+	}
+	return x;
+}
+
+inline float sqr(const float& f) {return f*f;}
+
+float mcmc(const std::vector<vec2>& original, const std::vector<vec2>& offset, const int& iterations) {
+	mat2 m1, m2; //matrices
+	float a1, a2; //angles for the corresponding rotation matrices
+	float d1, d2; //distances
+	a1 = a2 = 0.0f;
+	d1 = hi(original, offset, m1);
+
+	const float o = 1.0f;
+	const float mi = 0.0f;
+	std::normal_distribution<float> d(mi, o);
+	struct mcmcGen {
+
+	} gen;
+
+	for (int i=0;i<iterations;++i) {
+		a2 = a1 + (float)(rand()%100-50)/10000.0f;
+		m2.init();
+		m2.rotate(a2);
+		d2 = hi(original, offset, m2);
+		float p = std::min(1.0f, (float)(exp(-sqr(d2-d1 - mi)/(2*sqr(o)))/(o*sqrt(2*M_PI))));
+		if (d2 < d1) {
+			d1 = d2;
+			a1 = a2;
+			m1 = m2;
+		}
+		printf("Step %d: %f (%f, %f)\n", i, a1, a2, p);
+	}
+	return d1;
+}
+
+
 int main(void) {
-	const int n = 5000;
+
+	const int n = 50;
 	std::vector<float> x(n);
 	std::vector<float> y(n);
+	std::vector<vec2> original(n);
+	std::vector<vec2> rotated(n);
+
+	mat2 m;
+	m.rotate(-0.2f);
 	for(int i=0; i<n; ++i) {
-    x.at(i) = i;
-		y.at(i) = i*i;
+		const float fi = (float)i/n;
+    x.at(i) = fi-0.5;
+		y.at(i) = (fi-0.5)*(fi-0.5)*4.0f;
+		original.at(i) = vec2(x.at(i), y.at(i));
+		rotated.at(i) = m*original.at(i);
   }
-	Plot::plot(x, y, "r-");
-	Plot::plot(x, "b-");
+
+	x.clear();
+	y.clear();
+	x.reserve(50);
+	y.reserve(50);
+	for (float i = -1.0f; i<=1.0f; i+=0.05f) {
+		mat2 m;
+		m.init();
+		m.rotate(i);
+		x.push_back(i);
+		y.push_back(hi(original, rotated, m));
+		//printf("%.2f: %.2f\n", *x.end(), *y.end());
+	}
+
+	float rot = mcmc(original, rotated, 200);
+
+	Plot::plot(x, y, "b-");
+	//Plot::plot(z, w, "g-");
 	Plot::show();
 	return 0;
 }
