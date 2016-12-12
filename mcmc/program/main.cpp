@@ -13,8 +13,11 @@ float hi(const std::vector<vec2>& v1, const std::vector<vec2>& v2, mat2 mat) {
 }
 
 inline float sqr(const float& f) {return f*f;}
+inline float normalDistribution(const float &x, const float &u, const float &o) {
+	return (float)(exp(-sqr(x - u)/(2.0f*sqr(o)))/(o*sqrt(2.0f*M_PI)));
+}
 
-float mcmc(const std::vector<vec2>& original, const std::vector<vec2>& offset, const int& iterations) {
+float mcmc(const std::vector<vec2>& original, const std::vector<vec2>& offset, const int& iterations, vector<float>& out) {
 	mat2 m1, m2; //matrices
 	float a1, a2; //angles for the corresponding rotation matrices
 	float d1, d2; //distances
@@ -23,23 +26,21 @@ float mcmc(const std::vector<vec2>& original, const std::vector<vec2>& offset, c
 
 	const float o = 1.0f;
 	const float mi = 0.0f;
-	std::normal_distribution<float> d(mi, o);
-	struct mcmcGen {
 
-	} gen;
 
 	for (int i=0;i<iterations;++i) {
 		a2 = a1 + (float)(rand()%100-50)/10000.0f;
 		m2.init();
 		m2.rotate(a2);
 		d2 = hi(original, offset, m2);
-		float p = std::min(1.0f, (float)(exp(-sqr(d2-d1 - mi)/(2*sqr(o)))/(o*sqrt(2*M_PI))));
-		if (d2 < d1) {
+		float p = std::min(1.0f, normalDistribution(sqrt(d2-d1), mi, o));
+		if (p > 0.5f) {
 			d1 = d2;
 			a1 = a2;
 			m1 = m2;
 		}
 		printf("Step %d: %f (%f, %f)\n", i, a1, a2, p);
+		out.push_back(a1);
 	}
 	return d1;
 }
@@ -76,10 +77,13 @@ int main(void) {
 		//printf("%.2f: %.2f\n", *x.end(), *y.end());
 	}
 
-	float rot = mcmc(original, rotated, 200);
+	vector<float> out;
+	float rot = mcmc(original, rotated, 200, out);
 
-	Plot::plot(x, y, "b-");
-	//Plot::plot(z, w, "g-");
-	Plot::show();
+	Plot::plot(out, "b-");
+	Plot::save("./p1.png");
+	//Plot::plot(x, y, "g-");
+	//Plot::save("p2.png");
+	//Plot::show();
 	return 0;
 }
